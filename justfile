@@ -60,9 +60,9 @@ install:
 # Deploy
 # ============================================================
 
-# Deploy binary locally to ~/.local/bin
+# Deploy binary and completions locally
 [group('deploy')]
-deploy: build deploy-bin
+deploy shell="fish": build (deploy-bin) (deploy-completion shell)
 
 # Copy binary to ~/.local/bin
 [group('deploy')]
@@ -70,6 +70,32 @@ deploy-bin:
     @mkdir -p ~/.local/bin
     @cp {{bin_file}} ~/.local/bin/{{app_name}}
     @echo "Installed {{app_name}} to ~/.local/bin/"
+
+# Generate and install shell completions
+[group('deploy')]
+deploy-completion shell="fish":
+    #!/usr/bin/env sh
+    case "{{shell}}" in
+        fish)
+            mkdir -p ~/.config/fish/completions
+            {{bin_file}} completion fish > ~/.config/fish/completions/{{app_name}}.fish
+            echo "Installed fish completions"
+            ;;
+        bash)
+            mkdir -p ~/.local/share/bash-completion/completions
+            {{bin_file}} completion bash > ~/.local/share/bash-completion/completions/{{app_name}}
+            echo "Installed bash completions"
+            ;;
+        zsh)
+            mkdir -p ~/.local/share/zsh/site-functions
+            {{bin_file}} completion zsh > ~/.local/share/zsh/site-functions/_{{app_name}}
+            echo "Installed zsh completions"
+            ;;
+        *)
+            echo "Unknown shell: {{shell}}. Available: fish, bash, zsh"
+            exit 1
+            ;;
+    esac
 
 # ============================================================
 # Clean

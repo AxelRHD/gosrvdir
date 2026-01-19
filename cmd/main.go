@@ -14,9 +14,10 @@ var appVersion = "dev"
 
 func main() {
 	cmd := &cli.Command{
-		Name:    "gosrvdir",
-		Usage:   "Simple directory server with file info",
-		Version: appVersion,
+		Name:                  "gosrvdir",
+		Usage:                 "Simple directory server with file info",
+		Version:               appVersion,
+		EnableShellCompletion: true,
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "port",
