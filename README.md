@@ -10,6 +10,7 @@
 - 🧭 **Breadcrumb navigation** — Click through the path hierarchy
 - 👁️ **Inline preview** — PDFs, images, and text files display in browser
 - 🎨 **Themeable** — 6 color schemes (Auto, Nord, Squirrel, Archlinux, Monokai, Zenburn)
+- 🐚 **Shell completions** — Fish, Bash, Zsh, and PowerShell supported
 - ⚡ **Zero dependencies** — Single binary, no runtime required
 
 ## Installation
@@ -25,7 +26,18 @@ go install github.com/axelrhd/gosrvdir/cmd@latest
 ```bash
 git clone https://github.com/axelrhd/gosrvdir.git
 cd gosrvdir
-just deploy  # Builds and installs to ~/.local/bin
+just deploy  # Builds, installs to ~/.local/bin, and sets up shell completions
+```
+
+The `deploy` command will:
+1. Build the binary
+2. Install to `~/.local/bin/`
+3. Interactively ask which shell completions to install (auto-detects your shell)
+
+For non-interactive installation:
+```bash
+just deploy-bin                    # Binary only, no completions
+just deploy-completion-for fish    # Install completions for specific shell
 ```
 
 ## Usage
@@ -47,6 +59,27 @@ gosrvdir --theme nord        # Use Nord theme
 | `--host` | `0.0.0.0` | Host/interface to bind |
 | `--theme` | `auto` | Color theme (auto, nord, squirrel, archlinux, monokai, zenburn) |
 | Positional | `.` | Directory to serve |
+
+## Shell Completions
+
+Completions are installed automatically with `just deploy`.
+
+If you installed via `go install` or downloaded a binary, generate completions manually:
+
+```bash
+# Fish
+gosrvdir completion fish > ~/.config/fish/completions/gosrvdir.fish
+
+# Bash
+gosrvdir completion bash > ~/.local/share/bash-completion/completions/gosrvdir
+
+# Zsh
+gosrvdir completion zsh > ~/.local/share/zsh/site-functions/_gosrvdir
+
+# PowerShell
+gosrvdir completion pwsh > ~/.config/powershell/gosrvdir.ps1
+# Then add to your profile: . ~/.config/powershell/gosrvdir.ps1
+```
 
 ## Why gosrvdir?
 
