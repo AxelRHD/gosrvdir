@@ -13,6 +13,7 @@ import (
 type Handler struct {
 	Dir   string
 	Theme string
+	Creds Credentials
 }
 
 type FileInfo struct {
@@ -30,6 +31,15 @@ type ListingData struct {
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if h.Creds != nil {
+		user, pass, ok := r.BasicAuth()
+		if !ok || !CheckPassword(h.Creds, user, pass) {
+			w.Header().Set("WWW-Authenticate", `Basic realm="gosrvdir"`)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+	}
+
 	// Clean and resolve path
 	urlPath := path.Clean(r.URL.Path)
 	if urlPath == "" {

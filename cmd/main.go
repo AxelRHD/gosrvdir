@@ -35,9 +35,36 @@ func main() {
 				Value: "auto",
 				Usage: "Color theme (auto, nord, squirrel, archlinux, monokai, zenburn)",
 			},
+			&cli.StringFlag{
+				Name:  "auth",
+				Usage: "Basic auth credentials (user:password)",
+			},
+			&cli.StringFlag{
+				Name:  "auth-file",
+				Usage: "Path to htpasswd file",
+			},
 		},
 		ArgsUsage: "[directory]",
+		Commands: []*cli.Command{
+			{
+				Name:      "htpasswd",
+				Usage:     "Create or update an htpasswd file",
+				ArgsUsage: "<file> <username>",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					if cmd.NArg() != 2 {
+						return fmt.Errorf("usage: gosrvdir htpasswd <file> <username>")
+					}
+					return gosrvdir.RunHtpasswd(cmd.Args().Get(0), cmd.Args().Get(1))
+				},
+			},
+		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
+			auth := cmd.String("auth")
+			authFile := cmd.String("auth-file")
+			if auth != "" && authFile != "" {
+				return fmt.Errorf("--auth and --auth-file are mutually exclusive")
+			}
+
 			dir := "."
 			if cmd.NArg() > 0 {
 				dir = cmd.Args().Get(0)
@@ -53,10 +80,12 @@ func main() {
 			}
 
 			cfg := gosrvdir.Config{
-				Host:  cmd.String("host"),
-				Port:  int(cmd.Int("port")),
-				Dir:   dir,
-				Theme: cmd.String("theme"),
+				Host:     cmd.String("host"),
+				Port:     int(cmd.Int("port")),
+				Dir:      dir,
+				Theme:    cmd.String("theme"),
+				Auth:     auth,
+				AuthFile: authFile,
 			}
 
 			return gosrvdir.Serve(cfg)
